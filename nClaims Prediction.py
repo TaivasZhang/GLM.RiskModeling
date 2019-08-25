@@ -5,9 +5,17 @@
 # 
 # ## Data Perparation
 
+# In[1]:
+import pandas
+import numpy 
+import scipy 
+import scipy.stats as stats 
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
+
 # In[2]:
-
-
 plt.rcParams['figure.figsize'] = (16, 9)
 plt.rcParams['figure.dpi'] = 300
 
@@ -15,7 +23,7 @@ plt.rcParams['figure.dpi'] = 300
 # In[3]:
 
 
-inData = pandas.read_excel('Assignment6.xlsx', sheet_name = "HOCLAIMDATA", header = 0)
+inData = pandas.read_excel('claimhistory.xlsx', sheet_name = "HOCLAIMDATA", header = 0)
 numPolicy = inData.shape[0]
 numPolicy
 
@@ -324,6 +332,7 @@ plt.grid(axis="both")
 plt.legend(loc='upper right')
 plt.show()
 
+# In[22]:
 plt.scatter(x=nClaim, y=pred_nClaim)
 plt.title("Predicted versus Observed")
 plt.xlabel("Observed Number of Claims")
@@ -333,5 +342,7 @@ plt.yticks(range(10))
 plt.grid(axis="both")
 plt.show()
 
-
 # ### End of number of Claims Prediction
+
+
+#%%
