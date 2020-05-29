@@ -1,11 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
+#Predicting the Number of Claims
 
-# # Predicting the Number of Claims
-# 
-# ## Data Perparation
+## Data Perparation
 
-# In[1]:
 import pandas
 import numpy 
 import scipy 
@@ -15,40 +11,22 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-# In[2]:
 plt.rcParams['figure.figsize'] = (16, 9)
 plt.rcParams['figure.dpi'] = 300
-
-
-# In[3]:
-
 
 inData = pandas.read_excel('claimhistory.xlsx', sheet_name = "HOCLAIMDATA", header = 0)
 numPolicy = inData.shape[0]
 numPolicy
 
-
-# In[4]:
-
-
 claimAmount = inData["amt_claims"]
 nClaim = inData["num_claims"]
 exposure = inData["exposure"]
 
-
-# ## Calculate the Prameter for Poisson
-
-# In[5]:
-
-
+## Calculate the Prameter for Poisson
 mm_lambda = inData.num_claims.mean()
 print('Method of Moment Lambda is', mm_lambda)
 
-
-# In[6]:
-
-
-# Aggregate the data to produce the Frequency table
+## Aggregate the data to produce the Frequency table
 xCount = pandas.DataFrame.sort_index(pandas.value_counts(inData["num_claims"])).to_frame()
 xCount["Count"] = xCount["num_claims"]
 xCount["num_claims"] = xCount.index
@@ -61,13 +39,7 @@ yPoisson = stats.poisson.pmf(xCount["num_claims"], lamPoisson)
 print('Poisson MLE')
 print('lambda = ', lamPoisson)
 
-
-# ## Plot the Histogram and Comparison with Empirical Data
-
-# In[7]:
-
-
-# Plot the empirical histogram
+##Plot the empirical histogram
 yEmpirical = xCount["Count"] / sum_k
 plt.bar(xCount["num_claims"], yEmpirical, align='center', edgecolor = 'black', fill = True, label = 'Empirical')
 plt.plot(xCount["num_claims"], yPoisson, 'rs-', label = 'Poisson')
@@ -80,19 +52,11 @@ plt.legend(loc='upper right')
 plt.savefig('histogram.png',  bbox_inches = 'tight')
 plt.show()
 
-
-# ## Forward Model Selection
-
-# In[8]:
-
+## Forward Model Selection
 
 lnExposure = numpy.log(exposure)
 
-
-# In[9]:
-
-
-# Step 0: Build a GLM model with the Intercept term only to predict number of claim
+## Step 0: Build a GLM model with the Intercept term only to predict number of claim
 X = numpy.full([numPolicy,1], 1.0)
 
 poissonGLM = sm.GLM(nClaim, X, family = sm.families.Poisson(link = sm.families.links.log), offset = lnExposure)
@@ -101,13 +65,7 @@ print("Log-likelihood (Value, dfModel, dfResidual) = ", poissonGLM_results.llf, 
 print(poissonGLM_results.summary())
 d0 = poissonGLM_results.deviance
 
-
-# ### Step 1. Adding the first variable
-
-# In[10]:
-
-
-# Step 1: Build a GLM model with one predictor to predict number of claim
+## Step 1: Build a GLM model with one predictor to predict number of claim
 predList = numpy.array(["aoi_tier", "marital", "primary_age_tier", "primary_gender", "residence_location"])
 
 for predVar in predList:
@@ -124,15 +82,9 @@ for predVar in predList:
    print("Deviance of the model = ", Deviance)
    print("Chi Square Sig =", Chi2Sig)
 
+### The first selected variable is ```'residence_location'```
 
-# ### The first selected variable is ```'residence_location'```
-# 
-# Now I call the result
-
-# In[11]:
-
-
-# Call the result
+## Pull the result
 predList = numpy.array(["residence_location"])
 
 for predVar in predList:
@@ -150,21 +102,12 @@ for predVar in predList:
    print("Chi Square Sig =", Chi2Sig)
 
 
-# **Calculate the new base-deviance as d1**
-
-# In[12]:
-
+## Calculate the new base-deviance as d1 
 
 d1 = poissonGLM_results.deviance
-d1
 
-
-# ### Step 2 Adding one more variable
-
-# In[13]:
-
-
-# Step 2: Build a GLM model with "residence_location" and another predictor to predict number of claim
+### Step 2 Adding one more variable
+### Step 2: Build a GLM model with "residence_location" and another predictor to predict number of claim
 predList = numpy.array(["aoi_tier", "marital", "primary_age_tier", "primary_gender"])
 
 for predVar in predList:
@@ -182,14 +125,9 @@ for predVar in predList:
    print("Chi Square Sig =", Chi2Sig)
 
 
-# ### Another variable  ```primary_age_tier``` should be added.
-# 
-# Now I call the result.
+### Another variable  ```primary_age_tier``` should be added.
 
-# In[14]:
-
-
-# Call the result
+## Pull the result
 predList = numpy.array(["primary_age_tier"])
 
 for predVar in predList:
@@ -207,22 +145,11 @@ for predVar in predList:
    print("Chi Square Sig =", Chi2Sig)
 
 
-# **Calculate the new base-deviance as d2**
-
-# In[15]:
-
-
+## Calculate the new base-deviance as d2
 d2 = poissonGLM_results.deviance
-d2
 
 
-# ### Step 3 Adding another Variable from ```"aoi_tier"```, ```"marital"```, and ```"primary_gender"```
-# 
-
-# In[16]:
-
-
-# Step 3: Build a GLM model with "residence_location", "primary_age_tier" and another predictor to predict number of claim
+###Step 3: Build a GLM model with "residence_location", "primary_age_tier" and another predictor to predict number of claim
 predList = numpy.array(["aoi_tier", "marital", "primary_gender"])
 
 for predVar in predList:
@@ -240,12 +167,9 @@ for predVar in predList:
    print("Chi Square Sig =", Chi2Sig)
 
 
-# ### Variable ```primary_gender``` should also be incorporated.
+### Variable ```primary_gender``` should also be incorporated.
 
-# In[17]:
-
-
-# Call the result
+## Pull the result
 predList = numpy.array(["primary_gender"])
 
 for predVar in predList:
@@ -262,20 +186,10 @@ for predVar in predList:
    print("Deviance of the model = ", Deviance)
    print("Chi Square Sig =", Chi2Sig)
 
-
-# In[18]:
-
-
 d3 = poissonGLM_results.deviance
-d3
 
 
-# ### Step 4 Adding ```"aoi_tier"``` or ```"marital"```
-
-# In[19]:
-
-
-# Step 4: Build a GLM model with CAR_USE, HOMEKID, MSTATUS and another predictor to predict number of claim
+### Step 4: Build a GLM model with CAR_USE, HOMEKID, MSTATUS and another predictor to predict number of claim
 predList = numpy.array(["aoi_tier", "marital"])
 
 for predVar in predList:
@@ -293,12 +207,8 @@ for predVar in predList:
    print("Chi Square Sig =", Chi2Sig)
 
 
-# ### Chi Square shows neither of the two variables makes significant difference if considered adding.
-# ### We end up with a final model that contains 
-# ### ```"residence_location"```, ```"primary_age_tier" ```& ```"primary_gender"```
-
-# In[20]:
-
+### Chi Square shows neither of the two variables makes significant difference if considered adding.
+### We end up with a final model that contains  ```"residence_location"```, ```"primary_age_tier" ```& ```"primary_gender"```
 
 # Final Model
 catPred = inData[["residence_location", "primary_age_tier", "primary_gender"]].astype('category')
@@ -315,10 +225,6 @@ print(poissonGLM_results.summary())
 print("Deviance of the model = ", Deviance)
 print("Chi Square Sig =", Chi2Sig)
 
-
-# In[21]:
-
-
 # Calculate predicted values
 pred_nClaim = poissonGLM.predict(modelParam, X, offset = lnExposure)
 
@@ -332,7 +238,6 @@ plt.grid(axis="both")
 plt.legend(loc='upper right')
 plt.show()
 
-# In[22]:
 plt.scatter(x=nClaim, y=pred_nClaim)
 plt.title("Predicted versus Observed")
 plt.xlabel("Observed Number of Claims")
@@ -342,7 +247,5 @@ plt.yticks(range(10))
 plt.grid(axis="both")
 plt.show()
 
-# ### End of number of Claims Prediction
+# End of number of Claims Prediction
 
-
-#%%
