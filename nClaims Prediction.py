@@ -1,6 +1,6 @@
 #Predicting the Number of Claims
 
-## Data Perparation
+## Import Library
 
 import pandas
 import numpy 
