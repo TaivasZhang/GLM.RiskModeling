@@ -10,4 +10,4 @@ The general process is to first determine the distribution of the dependent vari
 * [Data](claimhistory.xlsx)
 * [GLM Model](nClaims%20Prediction.py)
 
-&copy; 2019 Skye Zhang. All rights reserved.
+Copyright &copy; 2019 - 2020 by Skye Zhang. All rights reserved.
